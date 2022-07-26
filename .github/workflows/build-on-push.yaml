@@ -1,3 +1,5 @@
+# This workflow will build a MuleSoft project and deploy to CloudHub
+
 name: Build and Deploy to Sandbox
 
 on:
@@ -8,6 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
     steps:
     
     - uses: actions/checkout@v2
@@ -52,10 +57,21 @@ jobs:
       with:
           name: artifacts
           path: target/*.jar
-
+    
+    - name: Notify Slack
+      uses: act10ns/slack@v1.2.2
+      with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#github-actions-notifications'
+      if: always()
+        
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
     steps:    
     
     - uses: actions/checkout@v2
@@ -75,7 +91,7 @@ jobs:
       env:
         USERNAME: ${{ secrets.anypoint_cicd_username }}
         PASSWORD: ${{ secrets.anypoint_cicd_password }}
-        DECRYPTION_KEY: ${{ secrets.decryption_key }}
+#         DECRYPTION_KEY: ${{ secrets.decryption_key }}
       run: |
         artifactName=$(ls *.jar | head -1)
         mvn deploy -DmuleDeploy -e \
@@ -83,5 +99,12 @@ jobs:
          -Danypoint.username="$USERNAME" \
          -Danypoint.password="$PASSWORD" \
          -Denv=Sandbox \
-         -Ddecryption.key="$DECRYPTION_KEY" \
          -DskipTests
+         
+    - name: Notify Slack
+      uses: act10ns/slack@v1.2.2
+      with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#github-actions-notifications'
+      if: always()
