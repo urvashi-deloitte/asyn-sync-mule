@@ -1,30 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@urvashi-deloitte 
-stackmerge
-/
-cicd-pipeline-githubactions-apJan22
-Public
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-cicd-pipeline-githubactions-apJan22/pom.xml
-@stackmerge
-stackmerge Update pom.xml
-Latest commit f4af7c1 on Feb 4
- History
- 1 contributor
-96 lines (87 sloc)  2.81 KB
 
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -122,4 +95,3 @@ Latest commit f4af7c1 on Feb 4
 	</pluginRepositories>
 
 </project>
-You have no unread notifications
