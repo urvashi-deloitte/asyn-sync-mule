@@ -1,5 +1,5 @@
 # This workflow will build a MuleSoft project and deploy to CloudHub
-# 
+
 name: Build and Deploy to Sandbox
 
 on:
@@ -10,9 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-    
     steps:
     
     - uses: actions/checkout@v2
@@ -57,100 +54,3 @@ jobs:
       with:
           name: artifacts
           path: target/*.jar
-    
-    - name: Notify Slack
-      uses: act10ns/slack@v1.2.2
-      with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: '#github-actions-notifications'
-      if: always()
-        
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-    steps:    
-    
-    - uses: actions/checkout@v2
-    
-    - uses: actions/cache@v1
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-    
-    - uses: actions/download-artifact@master
-      with:
-        name: artifacts
-    
-    - name: Deploy to Sandbox
-      env:
-        USERNAME: ${{ secrets.anypoint_cicd_username }}
-        PASSWORD: ${{ secrets.anypoint_cicd_password }}
-        DECRYPTION_KEY: ${{ secrets.decryption_key }}
-      run: |
-        artifactName=$(ls *.jar | head -1)
-        mvn deploy -DmuleDeploy \
-         -Dmule.artifact=$artifactName \
-         -Danypoint.username="$USERNAME" \
-         -Danypoint.password="$PASSWORD" \
-         -Denv=Sandbox \
-         -Ddecryption.key="$DECRYPTION_KEY" \
-         -DskipTests
-         
-    - name: Notify Slack
-      uses: act10ns/slack@v1.2.2
-      with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: '#github-actions-notifications'
-      if: always()
-
-    
-    - name: Slack Notification
-      uses: act10ns/slack@v1
-      with: 
-        status: ${{ job.status }}
-        channel: '#meetups'
-        message: Build {{ env.GITHUB_REF_NAME }} branch Successfully
-      if: always()  
-      
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
-      PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-    steps:    
-    
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    
-    - uses: actions/cache@v1
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-    
-    - uses: actions/download-artifact@master
-      with:
-        name: artifacts
-    
-    - name: Deploy to Sandbox
-      run: mvn deploy -DmuleDeploy -DskipTests  --file pom.xml -s .maven/settings.xml
-         
-    - name: Notify Slack
-      uses: act10ns/slack@v1.2.2
-      with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: '#meetups'
-          message: Deployed {{ env.GITHUB_REF_NAME }} branch Successfully
-      if: always()
