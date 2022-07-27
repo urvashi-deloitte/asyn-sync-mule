@@ -99,7 +99,7 @@ jobs:
          -Danypoint.username="$USERNAME" \
          -Danypoint.password="$PASSWORD" \
          -Denv=Sandbox \
-         -DskipTests
+         -DskipMunitTests
          
     - name: Notify Slack
       uses: act10ns/slack@v1.2.2
