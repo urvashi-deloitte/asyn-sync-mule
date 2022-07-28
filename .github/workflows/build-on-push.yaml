@@ -29,5 +29,9 @@ jobs:
             app.Name: asyn-sync
             environment: Sandbox
             env: Dev
+            businessgroup: hashedin\business1
           run: 
-            mvn package -DattachMuleSources deploy -DmuleDeploy -Denv="$env" -Danypoint.username="$USERNAME" -Danypoint.password="$PASSWORD" -Dcloudhub.appName="$appName" -Denvironment="$environment" -DencryptionKey="$encryptionKey"   -DskipTests -Dapp.runtime=4.4.0
+            mvn package -DattachMuleSources deploy -DmuleDeploy
+            -Denv="$env" -Danypoint.username="$USERNAME" -Danypoint.password="$PASSWORD" 
+            -Dcloudhub.appName="$appName" -Denvironment="$environment" -DencryptionKey="$encryptionKey"  
+            -DskipTests -Dapp.runtime=4.4.0 -Dbusiness = "$businessgroup"
